@@ -82,3 +82,4 @@ console.log(esValida); // true
 ---
 
 **Link:** [npmjs.com/package/webcrypt-kit](https://www.npmjs.com/package/webcrypt-kit)
+
