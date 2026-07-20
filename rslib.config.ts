@@ -4,12 +4,12 @@ export default defineConfig({
   lib: [
     {
       format: 'esm',
-      syntax: ['node 22'],
+      syntax: ['webworker', 'es2022'],
       dts: true,
     },
     {
       format: 'cjs',
-      syntax: ['node 22'],
+      syntax: ['node', 'es2022'],
     },
   ],
 });
