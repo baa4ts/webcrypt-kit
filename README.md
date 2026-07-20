@@ -6,12 +6,11 @@ En vez de lidiar a mano con `TextEncoder`, `ArrayBuffer` y conversiones a hexade
 
 ### Status
 
-| Section | Status |
-| :--- | :---: |
-| Signing | ✅ Complete |
+| Section |        Status        |
+| :------ | :------------------: |
+| Signing |     ✅ Complete      |
 | Encrypt | ⏳ In Progress (50%) |
-| HASH    | ✅ Complete |
-
+| HASH    |     ✅ Complete      |
 
 ## Instalacion
 
