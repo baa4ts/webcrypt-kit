@@ -10,24 +10,13 @@ En vez de lidiar a mano con `TextEncoder`, `ArrayBuffer` y conversiones a hexade
 pnpm add webcrypt-kit
 ```
 
-```bash
-npm add webcrypt-kit
-```
+---
 
-## HASH
+## HASH()
 
-```typescript
-HASH(buffer: string, algorithm: HashAlgorithm): Promise<string>
-```
+Hashea un texto y devuelve el resultado directamente en hexadecimal.
 
-| Parametro   | Tipo            | Descripcion                                            |
-| ----------- | --------------- | ------------------------------------------------------ |
-| `buffer`    | `string`        | Texto de entrada a hashear                             |
-| `algorithm` | `HashAlgorithm` | `"SHA-1"` \| `"SHA-256"` \| `"SHA-384"` \| `"SHA-512"` |
-
-**Retorna:** el hash en hexadecimal (`string`).
-
-### Uso
+**Algoritmos soportados:** `SHA-1` | `SHA-256` | `SHA-384` | `SHA-512`
 
 ```typescript
 import { HASH } from 'webcrypt-kit';
@@ -36,59 +25,52 @@ const hash = await HASH('hola mundo', 'SHA-256');
 console.log(hash);
 ```
 
+---
+
+## Encrypt
+
+Clase para encriptar y desencriptar datos usando los modos de AES (`AES-GCM`, `AES-CBC`, `AES-CTR`). Se encarga de manejar el vector de inicializacion (IV) por vos.
+
+```typescript
+import { Encrypt } from 'webcrypt-kit';
+
+const enc = new Encrypt('AES-GCM');
+
+// 1. Generar la key simetrica
+const key = await enc.key();
+
+// 2. Encriptar (guarda tanto el ciphertext como el iv)
+const { ciphertext, iv } = await enc.encrypt('mi texto secreto', key);
+
+// 3. Desencriptar
+const textoOriginal = await enc.decrypt(ciphertext, key, iv);
+
+console.log(textoOriginal); // "mi texto secreto"
+```
+
+---
+
 ## Signature
 
-Clase para generar keys, firmar y verificar datos con distintos algoritmos de firma digital.
-
-```typescript
-new Signature(algorithm: SignatureAlgorithm)
-```
-
-| Algoritmo             | Tipo       | Key                                     |
-| --------------------- | ---------- | ---------------------------------------- |
-| `"HMAC"`              | Simetrico  | Una sola key (firma y verifica)          |
-| `"ECDSA"`             | Asimetrico | Par de keys (privateKey / publicKey)     |
-| `"RSASSA-PKCS1-v1_5"` | Asimetrico | Par de keys (privateKey / publicKey)     |
-| `"RSA-PSS"`           | Asimetrico | Par de keys (privateKey / publicKey)     |
-
-### Metodos
-
-```typescript
-key(): Promise<CryptoKey | CryptoKeyPair>
-```
-Genera la key (HMAC) o el par de keys (ECDSA/RSA) para el algoritmo configurado.
-
-```typescript
-sign(buffer: string, key: CryptoKey | CryptoKeyPair, hash?: HashAlgorithm, salt?: number): Promise<ArrayBuffer>
-```
-Firma un texto. Usa `privateKey` automaticamente si `key` es un par.
-
-```typescript
-verify(buffer: string, signature: BufferSource, key: CryptoKey | CryptoKeyPair, hash?: HashAlgorithm, salt?: number): Promise<boolean>
-```
-Verifica una firma contra el texto original. Usa `publicKey` automaticamente si `key` es un par.
-
-| Parametro | Tipo            | Descripcion                                                             |
-| --------- | --------------- | ------------------------------------------------------------------------ |
-| `buffer`  | `string`        | Texto a firmar o verificar                                                |
-| `key`     | `CryptoKey` \| `CryptoKeyPair` | Key generada con `key()`                                   |
-| `hash`    | `HashAlgorithm` | Solo aplica si el algoritmo es `ECDSA`. Default: `"SHA-256"`             |
-| `salt`    | `number`        | Solo aplica si el algoritmo es `RSA-PSS`. Default: `32`                  |
-
-### Uso
+Clase para generar keys, firmar y verificar datos. Soporta algoritmos simetricos (`HMAC`) y asimetricos (`ECDSA`, `RSASSA-PKCS1-v1_5`, `RSA-PSS`). Extrae la clave privada o publica automaticamente si usas algoritmos asimetricos.
 
 ```typescript
 import { Signature } from 'webcrypt-kit';
 
 const sig = new Signature('ECDSA');
+
+// 1. Generar el par de keys
 const keyPair = await sig.key();
 
+// 2. Firmar el texto
 const firma = await sig.sign('hola mundo', keyPair);
-const valida = await sig.verify('hola mundo', firma, keyPair);
 
-console.log(valida); // true
+// 3. Verificar la firma
+const esValida = await sig.verify('hola mundo', firma, keyPair);
+
+console.log(esValida); // true
 ```
 
-## Link
+---
 
-[npmjs.com/package/webcrypt-kit](https://www.npmjs.com/package/webcrypt-kit)
+**Link:** [npmjs.com/package/webcrypt-kit](https://www.npmjs.com/package/webcrypt-kit)
