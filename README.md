@@ -9,7 +9,7 @@ En vez de lidiar a mano con `TextEncoder`, `ArrayBuffer` y conversiones a hexade
 | Section |        Status        |
 | :------ | :------------------: |
 | Signing |     ✅ Complete      |
-| Encrypt | ⏳ In Progress (50%) |
+| Encrypt | ⏳ In Progress (75%) |
 | HASH    |     ✅ Complete      |
 
 ## Instalacion
