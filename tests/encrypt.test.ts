@@ -248,3 +248,91 @@ test('key(): devuelve un CryptoKey', async () => {
 
   expect(key instanceof CryptoKey).toBe(true);
 });
+
+// ---------------------------------------------------------------------------
+// exportKey / importKey
+// ---------------------------------------------------------------------------
+
+test('AES-GCM: export + import mantiene la key funcional (round-trip)', async () => {
+  const enc = new Encrypt('AES-GCM');
+
+  const key = await enc.key();
+  const raw = await enc.exportKey(key);
+  const keyImportada = await enc.importKey(raw);
+
+  const { ciphertext, iv } = await enc.encrypt('hola mundo', keyImportada);
+  const resultado = await enc.decrypt(ciphertext, key, iv); // desencripta con la original
+
+  expect(resultado).toBe('hola mundo');
+});
+
+test('AES-GCM: la key importada puede desencriptar lo que encripto la original', async () => {
+  const enc = new Encrypt('AES-GCM');
+
+  const key = await enc.key();
+  const { ciphertext, iv } = await enc.encrypt('hola mundo', key);
+
+  const raw = await enc.exportKey(key);
+  const keyImportada = await enc.importKey(raw);
+
+  const resultado = await enc.decrypt(ciphertext, keyImportada, iv);
+
+  expect(resultado).toBe('hola mundo');
+});
+
+test('AES-GCM: exportKey devuelve 32 bytes (256 bits)', async () => {
+  const enc = new Encrypt('AES-GCM');
+
+  const key = await enc.key();
+  const raw = await enc.exportKey(key);
+
+  expect(new Uint8Array(raw).length).toBe(32);
+});
+
+test('AES-GCM: dos keys distintas exportan bytes distintos', async () => {
+  const enc = new Encrypt('AES-GCM');
+
+  const keyA = await enc.key();
+  const keyB = await enc.key();
+
+  const rawA = await enc.exportKey(keyA);
+  const rawB = await enc.exportKey(keyB);
+
+  expect(new Uint8Array(rawA)).not.toEqual(new Uint8Array(rawB));
+});
+
+test('AES-GCM: importKey devuelve un CryptoKey', async () => {
+  const enc = new Encrypt('AES-GCM');
+
+  const key = await enc.key();
+  const raw = await enc.exportKey(key);
+  const keyImportada = await enc.importKey(raw);
+
+  expect(keyImportada instanceof CryptoKey).toBe(true);
+});
+
+test('AES-CBC: export + import mantiene la key funcional (round-trip)', async () => {
+  const enc = new Encrypt('AES-CBC');
+
+  const key = await enc.key();
+  const raw = await enc.exportKey(key);
+  const keyImportada = await enc.importKey(raw);
+
+  const { ciphertext, iv } = await enc.encrypt('hola mundo', keyImportada);
+  const resultado = await enc.decrypt(ciphertext, key, iv);
+
+  expect(resultado).toBe('hola mundo');
+});
+
+test('AES-CTR: export + import mantiene la key funcional (round-trip)', async () => {
+  const enc = new Encrypt('AES-CTR');
+
+  const key = await enc.key();
+  const raw = await enc.exportKey(key);
+  const keyImportada = await enc.importKey(raw);
+
+  const { ciphertext, iv } = await enc.encrypt('hola mundo', keyImportada);
+  const resultado = await enc.decrypt(ciphertext, key, iv);
+
+  expect(resultado).toBe('hola mundo');
+});
