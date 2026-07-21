@@ -6,11 +6,12 @@ En vez de lidiar a mano con `TextEncoder`, `ArrayBuffer` y conversiones a hexade
 
 ### Status
 
-| Section |        Status        |
-| :------ | :------------------: |
-| Signing |     ✅ Complete      |
-| Encrypt | ⏳ In Progress (75%) |
-| HASH    |     ✅ Complete      |
+| Section           |        Status         |
+| :---------------- | :-------------------: |
+| Signing           |      ✅ Complete      |
+| Encrypt           |      ✅ Complete      |
+| HASH              |      ✅ Complete      |
+| Key export/import | ✅ Complete (Encrypt) |
 
 ## Instalacion
 
@@ -56,6 +57,35 @@ const textoOriginal = await enc.decrypt(ciphertext, key, iv);
 console.log(textoOriginal); // "mi texto secreto"
 ```
 
+### Exportar e importar la key
+
+Una key generada con `key()` solo vive en memoria mientras corre el proceso. Para guardarla (DB, variable de entorno, etc) y reusarla despues, hay que exportarla a bytes y despues importarla de vuelta.
+
+```typescript
+import { Encrypt } from 'webcrypt-kit';
+
+const enc = new Encrypt('AES-GCM');
+
+// Generar y exportar (una sola vez, al hacer el setup)
+const key = await enc.key();
+const raw = await enc.exportKey(key);
+const keyBase64 = Buffer.from(raw).toString('base64');
+// guardar keyBase64 en .env, por ejemplo
+
+// Importar de vuelta (en cada proceso/request que necesite la key)
+const rawRecuperada = Buffer.from(keyBase64, 'base64');
+const keyRecuperada = await enc.importKey(rawRecuperada);
+
+// Usar la key importada normalmente
+const { ciphertext, iv } = await enc.encrypt('mi texto secreto', keyRecuperada);
+const textoOriginal = await enc.decrypt(ciphertext, keyRecuperada, iv);
+```
+
+| Metodo           | Descripcion                                                                   |
+| ---------------- | ----------------------------------------------------------------------------- |
+| `exportKey(key)` | Convierte un `CryptoKey` a bytes (`ArrayBuffer`) crudos, listos para guardar. |
+| `importKey(raw)` | Convierte bytes guardados de vuelta a un `CryptoKey` usable.                  |
+
 ---
 
 ## Signature
@@ -79,7 +109,8 @@ const esValida = await sig.verify('hola mundo', firma, keyPair);
 console.log(esValida); // true
 ```
 
+> **Nota:** exportar/importar keys de `Signature` (privada/publica) todavia no esta implementado en esta version.
+
 ---
 
 **Link:** [npmjs.com/package/webcrypt-kit](https://www.npmjs.com/package/webcrypt-kit)
-

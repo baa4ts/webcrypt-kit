@@ -1,28 +1,10 @@
+import { keyHelper } from '../keyHelper/keyHelper';
+
 /**
  * Utilidad para generar keys, encriptar y desencriptar datos usando
  * los distintos modos de AES soportados por SubtleCrypto.
  */
-export class Encrypt {
-  /**
-   * @param algorithm Algoritmo de encriptado a usar en esta instancia.
-   */
-  constructor(public algorithm: EncryptAlgorithm) {
-    this.algorithm = algorithm;
-  }
-
-  /**
-   * Genera una key simetrica para el algoritmo configurado.
-   *
-   * @returns `CryptoKey` lista para encriptar y desencriptar.
-   */
-  public async key(): Promise<CryptoKey> {
-    return await crypto.subtle.generateKey(
-      { name: this.algorithm, length: 256 },
-      true,
-      ['encrypt', 'decrypt'],
-    );
-  }
-
+export class Encrypt extends keyHelper {
   /**
    * Encripta un texto con la key indicada.
    *
